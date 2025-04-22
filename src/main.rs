@@ -14,7 +14,7 @@ const DEFAULT_SKIP_DIR_NAMES: [&str; 3] = [".git", ".rustup", ".cargo"];
 
 fn main() -> Result<()> {
     let mut args = args();
-    if let Some("clean-recursive") = std::env::args().skip(1).next().as_deref() {
+    if let Some("clean-recursive") = std::env::args().nth(1).as_deref() {
         args.next();
     }
     let args = Args::parse_from(args);
@@ -232,7 +232,9 @@ fn detect_and_clean(
     executions: &mut Vec<CargoCleanExecution>,
 ) -> Result<()> {
     let is_cargo_dir = path.join("Cargo.toml").is_file();
-    if !is_cargo_dir {
+    // Don't attempt to clean workspace members, affects --dry-run estimation.
+    let is_standalone = path.join("Cargo.lock").is_file();
+    if !(is_cargo_dir && is_standalone) {
         return Ok(());
     }
 
