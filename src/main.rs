@@ -13,12 +13,12 @@ use clap::{Parser, ValueEnum};
 const DEFAULT_SKIP_DIR_NAMES: [&str; 3] = [".git", ".rustup", ".cargo"];
 
 fn main() -> Result<()> {
-    let mut args = args();
-    if let Some("clean-recursive") = std::env::args().skip(1).next().as_deref() {
-        args.next();
+    let mut args = args().collect::<Vec<_>>();
+    if args.get(1).map(String::as_str) == Some("clean-recursive") {
+        args.remove(1);
     }
-    let args = Args::parse_from(args);
-    args.run()
+    let parsed_args = Args::parse_from(args);
+    parsed_args.run()
 }
 
 #[derive(Debug, Parser)]
